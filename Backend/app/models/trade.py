@@ -8,12 +8,12 @@ class Trade(db.Model):
     workflow_id = db.Column(db.Integer, db.ForeignKey('workflows.id'))
     symbol = db.Column(db.String(20), nullable=False, index=True)
     side = db.Column(db.String(10), nullable=False)  # buy, sell
-    type = db.Column(db.String(20), default='market')  # market, limit, stop_loss
+    type = db.Column(db.String(20), default='market')  
     quantity = db.Column(db.Float, nullable=False)
     price = db.Column(db.Float, nullable=False)
     filled_quantity = db.Column(db.Float, default=0)
     average_price = db.Column(db.Float)
-    status = db.Column(db.String(20), default='pending')  # pending, filled, partially_filled, canceled, failed
+    status = db.Column(db.String(20), default='pending')  
     exchange = db.Column(db.String(50), default='binance')
     exchange_order_id = db.Column(db.String(100))
     fee = db.Column(db.Float, default=0)
