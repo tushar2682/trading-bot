@@ -7,7 +7,7 @@ class Strategy(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
-    strategy_type = db.Column(db.String(50))  # rsi, macd, bollinger, custom
+    strategy_type = db.Column(db.String(50))  
     parameters = db.Column(db.JSON, default={})
     code = db.Column(db.Text)
     backtest_results = db.Column(db.JSON)
