@@ -6,8 +6,6 @@ from datetime import datetime, timedelta
 from sqlalchemy import func
 import logging
 
-import celery
-
 logger = logging.getLogger(__name__)
 
 class RiskManager:
@@ -173,57 +171,28 @@ class RiskManager:
         Returns:
             Optimal position size
         """
-        # Ensure numeric inputs
-        try:
-            entry_price = float(entry_price)
-            stop_loss_price = float(stop_loss_price)
-        except Exception:
-            logger.warning("Invalid numeric input for entry/stop prices")
+        if stop_loss_price >= entry_price:
+            logger.warning(f"Invalid stop loss: {stop_loss_price} >= {entry_price}")
             return 0
-
-        # Basic validation
-        if stop_loss_price >= entry_price or entry_price == 0:
-            logger.warning(
-                f"Invalid stop loss: {stop_loss_price} >= {entry_price}"
-            )
-            return 0
-
+        
         # Calculate risk amount (% of total equity)
-        total_equity = self._calculate_total_equity() or 0
-        try:
-            risk_amount = float(total_equity) * float(self.risk_per_trade)
-        except Exception:
-            risk_amount = 0
-
+        total_equity = self._calculate_total_equity()
+        risk_amount = total_equity * self.risk_per_trade
+        
         # Calculate risk per unit
         risk_per_unit = abs(entry_price - stop_loss_price)
-        if risk_per_unit == 0:
-            logger.warning("Risk per unit is zero, cannot calculate position size")
-            return 0
-
+        
         # Calculate position size
         position_size = risk_amount / risk_per_unit
-
+        
         # Apply maximum position size constraint
-        try:
-            max_units = float(self.max_position_size) / entry_price
-        except Exception:
-            max_units = 0
+        max_units = self.max_position_size / entry_price
         position_size = min(position_size, max_units)
-
-        # Apply balance constraint (include small fee buffer)
-        try:
-            available_balance = float(self.user.balance or 0)
-        except Exception:
-            available_balance = 0
-
-        try:
-            max_affordable = available_balance / (entry_price * 1.001)
-        except Exception:
-            max_affordable = 0
-
+        
+        # Apply balance constraint
+        max_affordable = self.user.balance / entry_price
         position_size = min(position_size, max_affordable)
-
+        
         logger.info(f"Calculated position size: {position_size} for {symbol}")
         return position_size
     
@@ -239,13 +208,6 @@ class RiskManager:
         Returns:
             Stop loss price
         """
-        try:
-            entry_price = float(entry_price)
-            percentage = float(percentage)
-        except Exception:
-            logger.warning("Invalid numeric input to calculate_stop_loss")
-            return entry_price
-
         if side == 'buy':
             return entry_price * (1 - percentage)
         else:
@@ -263,19 +225,9 @@ class RiskManager:
         Returns:
             Take profit price
         """
-        try:
-            entry_price = float(entry_price)
-            risk_reward_ratio = float(risk_reward_ratio)
-        except Exception:
-            logger.warning("Invalid numeric input to calculate_take_profit")
-            return entry_price
-
         stop_loss = self.calculate_stop_loss(entry_price, side)
-        try:
-            risk = abs(entry_price - float(stop_loss))
-        except Exception:
-            return entry_price
-
+        risk = abs(entry_price - stop_loss)
+        
         if side == 'buy':
             return entry_price + (risk * risk_reward_ratio)
         else:
@@ -288,27 +240,19 @@ class RiskManager:
         Returns:
             Tuple of (is_at_risk, margin_level)
         """
-        total_equity = self._calculate_total_equity() or 0
+        total_equity = self._calculate_total_equity()
         margin_used = self._calculate_margin_used()
-
-        try:
-            margin_used = float(margin_used)
-        except Exception:
-            margin_used = 0
-
+        
         if margin_used == 0:
             return False, 0
-
-        try:
-            margin_level = (total_equity / margin_used) * 100
-        except Exception:
-            margin_level = 0
-
+        
+        margin_level = (total_equity / margin_used) * 100
+        
         # Margin call at 120% level
         if margin_level < 120:
             logger.warning(f"Margin call risk for user {self.user_id}: {margin_level:.2f}%")
             return True, margin_level
-
+        
         return False, margin_level
     
     def get_risk_metrics(self):
@@ -318,71 +262,38 @@ class RiskManager:
         Returns:
             Dict of risk metrics
         """
-        total_equity = self._calculate_total_equity() or 0
+        total_equity = self._calculate_total_equity()
         margin_call_risk, margin_level = self.check_margin_call()
-
-        try:
-            available_balance = float(self.user.balance or 0)
-        except Exception:
-            available_balance = 0
-
-        open_positions = Position.query.filter_by(user_id=self.user_id).count()
-
-        daily_loss = self._calculate_daily_loss()
-        drawdown = self._calculate_drawdown()
-
+        
         return {
             'user_id': self.user_id,
-            'total_equity': round(total_equity, 2),
-            'available_balance': round(available_balance, 2),
-            'open_positions': open_positions,
+            'total_equity': total_equity,
+            'available_balance': self.user.balance,
+            'open_positions': Position.query.filter_by(user_id=self.user_id).count(),
             'max_positions': self.max_open_positions,
-            'daily_loss': round(daily_loss, 2),
+            'daily_loss': self._calculate_daily_loss(),
             'max_daily_loss': self.max_daily_loss,
-            'daily_loss_percent': round((daily_loss / self.max_daily_loss * 100), 2) if self.max_daily_loss > 0 else 0,
-            'drawdown': round(drawdown, 4),
+            'daily_loss_percent': (self._calculate_daily_loss() / self.max_daily_loss * 100) if self.max_daily_loss > 0 else 0,
+            'drawdown': self._calculate_drawdown(),
             'max_drawdown': self.max_drawdown,
-            'drawdown_percent': round((drawdown / self.max_drawdown * 100), 2) if self.max_drawdown > 0 else 0,
+            'drawdown_percent': (self._calculate_drawdown() / self.max_drawdown * 100) if self.max_drawdown > 0 else 0,
             'margin_level': margin_level,
             'margin_call_risk': margin_call_risk,
             'risk_per_trade': self.risk_per_trade * 100,
             'max_position_size': self.max_position_size,
-            'peak_equity': round(self._get_peak_equity(), 2)
+            'peak_equity': self._get_peak_equity()
         }
     
     def _calculate_total_equity(self):
         """Calculate total account equity"""
         positions = Position.query.filter_by(user_id=self.user_id).all()
-        positions_value = 0
-        for p in positions:
-            try:
-                qty = float(getattr(p, 'quantity', 0) or 0)
-                price = float(getattr(p, 'current_price', 0) or 0)
-            except Exception:
-                qty = 0
-                price = 0
-            positions_value += qty * price
-
-        try:
-            user_balance = float(getattr(self.user, 'balance', 0) or 0)
-        except Exception:
-            user_balance = 0
-
-        return user_balance + positions_value
+        positions_value = sum(p.quantity * p.current_price for p in positions)
+        return self.user.balance + positions_value
     
     def _calculate_margin_used(self):
         """Calculate total margin used"""
         positions = Position.query.filter_by(user_id=self.user_id).all()
-        total = 0
-        for p in positions:
-            try:
-                qty = float(getattr(p, 'quantity', 0) or 0)
-                entry = float(getattr(p, 'entry_price', 0) or 0)
-            except Exception:
-                qty = 0
-                entry = 0
-            total += qty * entry
-        return total
+        return sum(p.quantity * p.entry_price for p in positions)
     
     def _calculate_daily_loss(self):
         """Calculate today's total losses"""

@@ -1,33 +1,12 @@
 # trading-n8n — Trading Automation Bot
+
 A modular trading automation project with a Flask backend and a Vite/React frontend. The backend includes JWT authentication, workflow orchestration, trade management, portfolio analytics, and optional realtime SocketIO updates. The frontend UI for monitoring and interacting with the system is in `Frontend/trading-dashboard`.
 
+---
+
+## Repository layout
 
 - `Backend/` — Flask backend application (models, routes, services, run script).
-
-## Running background tasks with Celery
-
-This project includes a small Celery factory at `Backend/app/celery_app.py` and an example task in `Backend/app/tasks/example.py`.
-
-Quick start (requires Redis or another broker):
-
-```powershell
-# set broker URL (example for local Redis)
-$env:CELERY_BROKER_URL = 'redis://localhost:6379/0'
-
-# start the worker (run from repository root)
-# cd Backend
-# Backend\venv\Scripts\Activate.ps1
-celery -A app.tasks.example.celery worker --loglevel=info
-```
-
-From Python you can enqueue the example task:
-
-```python
-from app.tasks.example import add
-add.delay(1, 2)
-```
-
-Note: ensure your virtual environment is active, `CELERY_BROKER_URL` points to a running broker (Redis, RabbitMQ, etc.), and worker command is run from the `Backend` directory so `app` is importable.
 - `Frontend/trading-dashboard` — Frontend (Vite + React) application.
 
 ---
@@ -158,9 +137,6 @@ pytest
 
 ---
 
-## License
-
-- No license included. Add a `LICENSE` file to clarify usage rights.
 
 ---
 
@@ -180,10 +156,6 @@ Tell me which one you want next and I'll implement it.
 
 ---
 
-**License**
-- No license included. Add a `LICENSE` file if you intend to share or open-source this project.
-
----
 
 If you want, I can also:
 - Add an example `app/config.py` or `.env.example` with recommended settings.
