@@ -3,9 +3,11 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Dashboard from './pages/Dashboard';
 import Trading from './pages/Trading';
 import Workflows from './pages/Workflows';
+import Settings from './pages/Settings';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
-import { Sidebar, Header } from './components/Layout';
+import Layout from './components/Layout';
+import ThreeVisualizer from './components/ThreeVisualizer';
 import './index.css';
 
 const PrivateRoute = ({ children }) => {
@@ -16,6 +18,9 @@ const PrivateRoute = ({ children }) => {
 const App = () => {
     return (
         <Router>
+            {/* Ambient 3D Background */}
+            <ThreeVisualizer />
+
             <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
@@ -24,19 +29,14 @@ const App = () => {
                     path="/*"
                     element={
                         <PrivateRoute>
-                            <div className="flex min-h-screen bg-[#f8fafd]">
-                                <Sidebar />
-                                <div className="flex-1 flex flex-col">
-                                    <Header />
-                                    <main className="p-8 overflow-y-auto">
-                                        <Routes>
-                                            <Route path="/" element={<Dashboard />} />
-                                            <Route path="/trading" element={<Trading />} />
-                                            <Route path="/workflows" element={<Workflows />} />
-                                        </Routes>
-                                    </main>
-                                </div>
-                            </div>
+                            <Routes>
+                                <Route element={<Layout />}>
+                                    <Route path="/" element={<Dashboard />} />
+                                    <Route path="/trading" element={<Trading />} />
+                                    <Route path="/workflows" element={<Workflows />} />
+                                    <Route path="/settings" element={<Settings />} />
+                                </Route>
+                            </Routes>
                         </PrivateRoute>
                     }
                 />
