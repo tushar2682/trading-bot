@@ -1,23 +1,55 @@
 import React, { useEffect, useState } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
-import { ArrowUpRight, ArrowDownRight, TrendingUp, Briefcase, Activity, Clock, ChevronRight, Layers, DollarSign } from 'lucide-react';
-import { motion } from 'framer-motion';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+    Filler,
+} from 'chart.js';
+import { Line, Bar } from 'react-chartjs-2';
+import {
+    TrendingUp,
+    TrendingDown,
+    Layers,
+    Activity,
+    DollarSign,
+    ShieldCheck,
+    ArrowUpRight,
+    Zap
+} from 'lucide-react';
 import { portfolioService } from '../services/api';
 
-const StatCard = ({ label, value, change, icon: Icon, color }) => (
-    <div className="biz-card flex flex-col justify-between">
-        <div className="flex justify-between items-start mb-4">
-            <div className={`p-2.5 rounded-xl ${color} bg-opacity-10`}>
-                <Icon size={20} className={color.replace('bg-', 'text-')} />
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+    Filler
+);
+
+const StatCard = ({ label, value, change, icon: Icon, trend }) => (
+    <div className="stat glass-card p-6 flex flex-col gap-2 transition-all hover:scale-[1.02]">
+        <div className="flex justify-between items-start">
+            <div className="p-3 bg-primary bg-opacity-10 rounded-xl text-primary border border-primary border-opacity-10">
+                <Icon size={24} />
             </div>
-            <div className={`flex items-center gap-1 text-xs font-bold ${change >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                {change >= 0 ? <TrendingUp size={14} /> : <ArrowDownRight size={14} />}
-                {Math.abs(change)}%
+            <div className={`badge ${trend === 'up' ? 'badge-success' : 'badge-error'} badge-sm font-bold gap-1`}>
+                {trend === 'up' ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                {change}%
             </div>
         </div>
-        <div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">{label}</p>
-            <p className="text-2xl font-bold text-slate-900">{value}</p>
+        <div className="mt-4">
+            <div className="stat-title text-slate-500 font-bold text-xs uppercase tracking-widest">{label}</div>
+            <div className="stat-value text-white text-3xl font-black mt-1">{value}</div>
         </div>
     </div>
 );
@@ -40,166 +72,218 @@ const Dashboard = () => {
         fetchData();
     }, []);
 
-    const performanceData = [
-        { name: 'Jan', value: 4000 }, { name: 'Feb', value: 3000 }, { name: 'Mar', value: 5000 },
-        { name: 'Apr', value: 4500 }, { name: 'May', value: 6000 }, { name: 'Jun', value: 5500 },
-        { name: 'Jul', value: 7000 }, { name: 'Aug', value: 6800 }, { name: 'Sep', value: 8500 },
-    ];
+    const chartData = {
+        labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'],
+        datasets: [
+            {
+                label: 'Portfolio Value',
+                data: [125000, 126500, 124000, 128000, 127000, 129500, 131000],
+                fill: true,
+                borderColor: '#0A84FF',
+                backgroundColor: 'rgba(10, 132, 255, 0.1)',
+                tension: 0.4,
+                pointRadius: 0,
+                borderWidth: 3,
+            },
+        ],
+    };
+
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#1c1c1e',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                padding: 12,
+                cornerRadius: 8,
+                displayColors: false,
+            },
+        },
+        scales: {
+            x: {
+                grid: { display: false },
+                ticks: { color: '#64748b', font: { size: 10, weight: 'bold' } },
+            },
+            y: {
+                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                ticks: { color: '#64748b', font: { size: 10, weight: 'bold' }, callback: (value) => `$${value / 1000}k` },
+            },
+        },
+    };
 
     if (loading) return (
         <div className="flex items-center justify-center h-[60vh]">
-            <div className="w-8 h-8 border-2 border-blue-500/20 border-t-blue-600 rounded-full animate-spin"></div>
+            <span className="loading loading-infinity loading-lg text-primary"></span>
         </div>
     );
 
     return (
-        <div className="animate-biz max-w-[1600px] mx-auto space-y-8 pb-10">
-            {/* Header Info */}
-            <div className="flex items-end justify-between">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            {/* Top Bar Analysis */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900">Analytics Overview</h1>
-                    <p className="text-slate-500 font-medium mt-1">Institutional-grade portfolio performance tracking.</p>
+                    <h2 className="text-4xl font-black text-white elite-gradient-text tracking-tight">OPERATIONS_CENTER</h2>
+                    <p className="text-slate-500 font-bold text-sm mt-2 flex items-center gap-2">
+                        <Zap size={16} className="text-warning" />
+                        SYSTEM_STATUS: <span className="text-success">OPTIMAL</span> // ENCRYPTION: <span className="text-info">AES-256</span>
+                    </p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">LATEST_REPORT: 6:30 AM EST</span>
-                    <button className="btn-biz btn-biz-secondary">Export Analytics</button>
+                <div className="flex gap-4">
+                    <button className="btn btn-outline border-white border-opacity-10 text-white hover:bg-white hover:bg-opacity-5 rounded-xl font-bold uppercase text-xs tracking-widest px-8">
+                        View Audit Log
+                    </button>
+                    <button className="btn btn-primary rounded-xl font-bold uppercase text-xs tracking-widest px-8 shadow-lg shadow-primary/20">
+                        Optimize Assets
+                    </button>
                 </div>
             </div>
 
-            {/* KPI Matrix */}
+            {/* Matrix Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard label="Total Equity Value" value={`$${(portfolio?.summary?.total_value || 128450.20).toLocaleString()}`} change={4.2} icon={DollarSign} color="bg-blue-500" />
-                <StatCard label="Net PnL (Open)" value={`+$${(portfolio?.summary?.unrealized_pnl || 12450.00).toLocaleString()}`} change={12.5} icon={TrendingUp} color="bg-emerald-500" />
-                <StatCard label="Active Allocations" value={(portfolio?.positions?.length || 18).toString()} change={0} icon={Layers} color="bg-slate-500" />
-                <StatCard label="Execution Efficiency" value="98.4%" change={-1.2} icon={Activity} color="bg-indigo-500" />
+                <StatCard
+                    label="Total Equity"
+                    value={`$${(portfolio?.summary?.total_value || 131000.42).toLocaleString()}`}
+                    change="+5.2"
+                    icon={DollarSign}
+                    trend="up"
+                />
+                <StatCard
+                    label="Floating PnL"
+                    value={`+$${(portfolio?.summary?.unrealized_pnl || 12450.00).toLocaleString()}`}
+                    change="+12.4"
+                    icon={Activity}
+                    trend="up"
+                />
+                <StatCard
+                    label="Active Nodes"
+                    value={(portfolio?.positions?.length || 12).toString()}
+                    change="0.0"
+                    icon={Layers}
+                    trend="up"
+                />
+                <StatCard
+                    label="Risk Score"
+                    value="0.14"
+                    change="-2.1"
+                    icon={ShieldCheck}
+                    trend="down"
+                />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Main Performance Chart */}
+                {/* Main Visualizer */}
                 <div className="lg:col-span-8 space-y-8">
-                    <div className="biz-card">
-                        <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-lg font-bold">Equity Evolution</h3>
-                            <div className="flex bg-slate-100 p-1 rounded-lg">
-                                {['Total Portfolio', 'Sub-Engines'].map(t => (
-                                    <button key={t} className={`px-4 py-1.5 text-[11px] font-bold rounded-md transition-all ${t === 'Total Portfolio' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500'}`}>
-                                        {t}
-                                    </button>
-                                ))}
+                    <div className="glass-card p-8 h-[500px] flex flex-col">
+                        <div className="flex justify-between items-center mb-10">
+                            <div>
+                                <h3 className="text-xl font-black text-white tracking-tight">EQUITY_STRATIFICATION</h3>
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Real-time valuation synchronization</p>
+                            </div>
+                            <div className="join">
+                                <button className="btn btn-sm join-item bg-white bg-opacity-5 border-white border-opacity-5">1H</button>
+                                <button className="btn btn-sm join-item btn-primary">1D</button>
+                                <button className="btn btn-sm join-item bg-white bg-opacity-5 border-white border-opacity-5">1W</button>
                             </div>
                         </div>
-                        <div className="h-[400px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={performanceData}>
-                                    <defs>
-                                        <linearGradient id="blueGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1} />
-                                            <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} dy={10} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 11 }} dx={-10} tickFormatter={(v) => `$${v}`} />
-                                    <Tooltip
-                                        contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="value"
-                                        stroke="#2563eb"
-                                        strokeWidth={3}
-                                        fillOpacity={1}
-                                        fill="url(#blueGrad)"
-                                        animationDuration={1500}
-                                    />
-                                </AreaChart>
-                            </ResponsiveContainer>
+                        <div className="flex-1 min-h-0">
+                            <Line data={chartData} options={chartOptions} />
                         </div>
                     </div>
 
-                    {/* Asset Allocation Metrics */}
-                    <div className="biz-card">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-lg font-bold">Asset Stratification</h3>
-                            <button className="text-blue-600 font-bold text-xs hover:underline flex items-center gap-1">Update Protocol <ChevronRight size={14} /></button>
+                    {/* Positions Table */}
+                    <div className="glass-card overflow-hidden">
+                        <div className="p-8 border-b border-white border-opacity-5">
+                            <h3 className="text-xl font-black text-white tracking-tight">ACTIVE_ALLOCATIONS</h3>
                         </div>
-                        <div className="space-y-5">
-                            {(portfolio?.positions || [
-                                { symbol: 'BTCUSDT', quantity: '1.24', market_value: 54120, pnl_percent: 5.8, share: 45 },
-                                { symbol: 'ETHUSDT', quantity: '18.5', market_value: 42100, pnl_percent: -2.3, share: 35 },
-                                { symbol: 'SOLUSDT', quantity: '245', market_value: 12400, pnl_percent: 1.2, share: 20 }
-                            ]).map((pos, i) => (
-                                <div key={i} className="list-item rounded-xl">
-                                    <div className="flex items-center gap-4 flex-1">
-                                        <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center font-bold text-slate-500">
-                                            {pos.symbol.substring(0, 2)}
-                                        </div>
-                                        <div>
-                                            <p className="font-bold text-slate-900">{pos.symbol}</p>
-                                            <p className="text-[11px] text-slate-400 font-bold uppercase tracking-tighter">{pos.quantity} UNITS ALLOCATED</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 px-8">
-                                        <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                            <div className="h-full bg-blue-500 rounded-full" style={{ width: `${pos.share || 30}%` }} />
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="font-bold text-slate-900">${pos.market_value?.toLocaleString()}</p>
-                                        <p className={`text-[11px] font-bold ${pos.pnl_percent >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                            {pos.pnl_percent >= 0 ? '+' : ''}{pos.pnl_percent}% VARIANCE
-                                        </p>
-                                    </div>
-                                </div>
-                            ))}
+                        <div className="overflow-x-auto">
+                            <table className="table table-zebra bg-transparent">
+                                <thead>
+                                    <tr className="border-white border-opacity-5 text-slate-500 uppercase text-[10px] tracking-widest">
+                                        <th className="pl-8 py-6">Asset_Identifier</th>
+                                        <th>Size_Allocation</th>
+                                        <th>Market_Value</th>
+                                        <th>Variance_%</th>
+                                        <th className="pr-8 text-right">Operational_Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {(portfolio?.positions || [
+                                        { symbol: 'BTCUSDT', quantity: '1.24', market_value: 54120, pnl_percent: 5.8, share: 45 },
+                                        { symbol: 'ETHUSDT', quantity: '18.5', market_value: 42100, pnl_percent: -2.3, share: 35 },
+                                        { symbol: 'SOLUSDT', quantity: '245', market_value: 12400, pnl_percent: 1.2, share: 20 }
+                                    ]).map((pos, i) => (
+                                        <tr key={i} className="hover:bg-white hover:bg-opacity-5 border-white border-opacity-5 transition-colors group">
+                                            <td className="pl-8 py-5">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded-xl bg-primary bg-opacity-10 flex items-center justify-center font-bold text-primary border border-primary border-opacity-20 group-hover:scale-110 transition-transform">
+                                                        {pos.symbol.substring(0, 2)}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-white text-sm tracking-wide">{pos.symbol}</p>
+                                                        <p className="text-[10px] font-bold text-slate-500 uppercase">Layer-1 Protocol</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="font-bold text-slate-300 text-sm">{pos.quantity} units</td>
+                                            <td className="font-bold text-white text-sm">${pos.market_value?.toLocaleString()}</td>
+                                            <td>
+                                                <div className={`badge ${pos.pnl_percent >= 0 ? 'badge-success' : 'badge-error'} badge-sm font-bold bg-opacity-20 border-opacity-30`}>
+                                                    {pos.pnl_percent >= 0 ? '+' : ''}{pos.pnl_percent}%
+                                                </div>
+                                            </td>
+                                            <td className="pr-8 text-right">
+                                                <button className="btn btn-ghost btn-xs text-primary font-bold hover:bg-primary hover:bg-opacity-10 rounded-lg h-10 px-4">
+                                                    MANAGE_ENTRY <ArrowUpRight size={14} className="ml-1" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
 
-                {/* Sidebar Business Intelligence */}
-                <div className="lg:col-span-4 space-y-6">
-                    <div className="biz-card bg-[#0f172a] text-white overflow-hidden relative border-none shadow-blue-900/10">
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-2 mb-4">
-                                <ShieldCheck className="text-blue-400" size={18} />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-blue-400">Secure Operation</span>
-                            </div>
-                            <h3 className="text-lg font-bold mb-2 font-heading">Alpha Monitoring</h3>
-                            <p className="text-sm text-slate-400 font-medium leading-relaxed mb-8">System is autonomously validating 1,240 data points per second across global exchanges.</p>
-                            <button className="w-full btn-biz btn-biz-primary h-12">Launch Terminal</button>
-                        </div>
-                        <Activity className="absolute -right-10 -bottom-10 text-white opacity-[0.03] scale-[3]" size={120} />
-                    </div>
-
-                    <div className="biz-card">
-                        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-6 border-b border-slate-50 pb-4">Operational Status</h3>
+                {/* Intelligent Insights */}
+                <div className="lg:col-span-4 space-y-8">
+                    <div className="glass-card p-8 bg-primary bg-opacity-10 border-primary border-opacity-20 shadow-primary/5">
+                        <h3 className="text-xl font-black text-white tracking-tight mb-4">AI_INSIGHTS_v1.0</h3>
+                        <p className="text-slate-400 text-sm font-medium leading-relaxed mb-8">
+                            Market volatility is currently <span className="text-success font-bold text-white">LOW</span>.
+                            Alpha monitoring suggests increasing capital allocation in <span className="underline decoration-primary font-bold text-white">TECH-INDEX</span> assets for the next 4 hours.
+                        </p>
                         <div className="space-y-4">
-                            {[
-                                { label: 'Latency (API)', value: '12ms', status: 'optimal' },
-                                { label: 'DB Integrity', value: '100%', status: 'optimal' },
-                                { label: 'n8n Node 01', value: 'Active', status: 'optimal' },
-                                { label: 'Buffer Usage', value: '42%', status: 'warning' },
-                            ].map((s, i) => (
-                                <div key={i} className="flex justify-between items-center text-xs">
-                                    <span className="text-slate-500 font-semibold">{s.label}</span>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-slate-900 font-bold">{s.value}</span>
-                                        <div className={`w-1.5 h-1.5 rounded-full ${s.status === 'optimal' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                                    </div>
-                                </div>
-                            ))}
+                            <div className="flex justify-between items-center bg-white bg-opacity-5 p-4 rounded-xl border border-white border-opacity-5">
+                                <span className="text-xs font-bold text-slate-300">Confidence Score</span>
+                                <span className="text-xs font-black text-primary">89.4%</span>
+                            </div>
+                            <button className="btn btn-primary w-full h-14 rounded-2xl font-black uppercase text-xs tracking-widest">
+                                Approve Strategy
+                            </button>
                         </div>
                     </div>
 
-                    <div className="biz-card p-0 overflow-hidden border-dashed">
-                        <div className="p-6">
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500">Business Insights</h3>
+                    <div className="glass-card">
+                        <div className="p-8 border-b border-white border-opacity-5 flex justify-between items-center">
+                            <h3 className="text-sm font-black text-slate-500 uppercase tracking-[0.2em]">Operational_Node_Vitals</h3>
+                            <div className="w-2 h-2 rounded-full bg-success animate-ping" />
                         </div>
-                        <div className="p-2 space-y-1">
-                            {['Market Sentimental Shift', 'Volume Anomaly Detected', 'Protocol v4.2 Update Ready'].map((msg, i) => (
-                                <div key={i} className="p-4 rounded-xl hover:bg-slate-50 transition-all flex items-start gap-4 cursor-pointer">
-                                    <div className="mt-1 w-2 h-2 rounded-full bg-blue-500" />
-                                    <p className="text-xs font-bold text-slate-700 leading-tight">{msg}</p>
+                        <div className="p-8 space-y-6">
+                            {[
+                                { label: 'Backend Latency', value: '14ms', progress: 15 },
+                                { label: 'Node CPU Load', value: '32%', progress: 32 },
+                                { label: 'Redis Buffer', value: '12%', progress: 12 },
+                                { label: 'Socket Stream', value: '4.2kb/s', progress: 45 },
+                            ].map((v, i) => (
+                                <div key={i} className="space-y-3">
+                                    <div className="flex justify-between items-end">
+                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{v.label}</span>
+                                        <span className="text-xs font-bold text-white">{v.value}</span>
+                                    </div>
+                                    <progress className="progress progress-primary w-full bg-white bg-opacity-5 h-1.5" value={v.progress} max="100"></progress>
                                 </div>
                             ))}
                         </div>
