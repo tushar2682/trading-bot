@@ -1,3 +1,10 @@
+/**
+ * NEBU-TRADER DESIGN SYSTEM
+ * Pure Vanilla CSS with Tailwind HUD elements
+ * Primary: #0A84FF (Precision Blue)
+ * Background: #000000 (Pure Matte)
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
