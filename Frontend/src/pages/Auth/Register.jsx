@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../../services/api';
-import { Globe, UserPlus, Mail, Lock, ShieldCheck, CheckSquare, ArrowRight } from 'lucide-react';
+import {
+    Globe,
+    UserPlus,
+    Mail,
+    Lock,
+    ShieldCheck,
+    CheckSquare,
+    ArrowRight,
+    User,
+    Fingerprint,
+    Cpu
+} from 'lucide-react';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -17,86 +28,101 @@ const Register = () => {
         setLoading(true);
         try {
             await authService.register(formData);
-            alert("Identity Provisioned. Proceed to Security Authentication.");
             navigate('/login');
         } catch (err) {
-            alert("Operational Stop: Provisioning Logic Error");
+            console.error("Provisioning failed", err);
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center justify-center p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
-            <div className="max-w-[500px] w-full animate-biz">
-                <div className="flex flex-col items-center mb-10 text-center">
-                    <div className="w-20 h-20 bg-blue-600 rounded-[28px] flex items-center justify-center mb-6 shadow-2xl shadow-blue-500/20 ring-4 ring-white">
-                        <Globe className="text-white" size={32} />
+        <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+            <div className="max-w-[500px] w-full relative z-10">
+                {/* Brand Header */}
+                <div className="flex flex-col items-center mb-12 text-center">
+                    <div className="w-24 h-24 bg-primary bg-opacity-10 rounded-[2rem] flex items-center justify-center mb-8 border border-primary border-opacity-20 shadow-2xl shadow-primary/20 backdrop-blur-xl">
+                        <Fingerprint className="text-primary" size={48} />
                     </div>
-                    <h1 className="text-4xl font-bold tracking-tight text-slate-900 font-heading leading-tight">Identity Provisioning</h1>
-                    <p className="text-slate-500 font-medium mt-3 text-lg leading-relaxed truncate px-4">Establishing secure corporate access for Alpha-Network operators.</p>
+                    <h1 className="text-5xl font-black tracking-tighter text-white elite-gradient-text leading-tight mb-4">IDENTITY_PROVISION</h1>
+                    <p className="text-slate-500 font-bold text-sm uppercase tracking-[0.3em]">Operator Onboarding Protocol</p>
                 </div>
 
-                <div className="biz-card p-12 bg-white/90 backdrop-blur-md shadow-2xl shadow-slate-200/60 border-slate-200/80">
+                {/* Register Card */}
+                <div className="glass-card p-12 overflow-hidden relative">
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest pl-1">Operator Alias / Handle</label>
-                            <input
-                                type="text"
-                                required
-                                value={formData.username}
-                                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                                className="w-full bg-slate-50 border border-slate-200 px-4 py-4 rounded-xl text-slate-900 outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500/50 font-semibold text-[15px] transition-all"
-                                placeholder="OP_7829_SEC"
-                            />
+                        <div className="form-control space-y-3">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Alias_Designation</label>
+                            <div className="relative group">
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors" size={20} />
+                                <input
+                                    type="text"
+                                    required
+                                    value={formData.username}
+                                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                    className="input input-bordered w-full bg-neutral bg-opacity-30 border-white border-opacity-5 focus:border-primary pl-12 h-16 rounded-2xl font-bold text-white placeholder:text-slate-700"
+                                    placeholder="e.g. ALPHA_OPERATOR_01"
+                                />
+                            </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest pl-1">Corporate Communications Address</label>
-                            <input
-                                type="email"
-                                required
-                                value={formData.email}
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                className="w-full bg-slate-50 border border-slate-200 px-4 py-4 rounded-xl text-slate-900 outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500/50 font-semibold text-[15px] transition-all"
-                                placeholder="operator.id@nebu-corp.global"
-                            />
+                        <div className="form-control space-y-3">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Communication_Sync</label>
+                            <div className="relative group">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors" size={20} />
+                                <input
+                                    type="email"
+                                    required
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                    className="input input-bordered w-full bg-neutral bg-opacity-30 border-white border-opacity-5 focus:border-primary pl-12 h-16 rounded-2xl font-bold text-white placeholder:text-slate-700"
+                                    placeholder="operator@nebu-corp.global"
+                                />
+                            </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest pl-1">Encryption Protocol / Password</label>
-                            <input
-                                type="password"
-                                required
-                                value={formData.password}
-                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                className="w-full bg-slate-50 border border-slate-200 px-4 py-4 rounded-xl text-slate-900 outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500/50 font-semibold text-[15px] transition-all"
-                                placeholder="••••••••"
-                            />
+                        <div className="form-control space-y-3">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Security_Cipher</label>
+                            <div className="relative group">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors" size={20} />
+                                <input
+                                    type="password"
+                                    required
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                    className="input input-bordered w-full bg-neutral bg-opacity-30 border-white border-opacity-5 focus:border-primary pl-12 h-16 rounded-2xl font-bold text-white placeholder:text-slate-700"
+                                    placeholder="••••••••"
+                                />
+                            </div>
                         </div>
 
-                        <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-4">
-                            <CheckSquare className="text-blue-600 mt-1 shrink-0" size={18} />
-                            <p className="text-[11px] font-bold text-slate-500 leading-relaxed uppercase tracking-tight">I acknowledge and accept the corporate compliance regulations and terminal operation logs monitoring.</p>
+                        <div className="p-5 bg-primary bg-opacity-5 rounded-2xl border border-primary border-opacity-10 flex items-start gap-4">
+                            <CheckSquare className="text-primary mt-1 shrink-0" size={18} />
+                            <p className="text-[10px] font-bold text-slate-400 leading-relaxed uppercase tracking-tight">
+                                I verify operational compliance and accept real-time monitoring of all terminal interactions.
+                            </p>
                         </div>
 
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold uppercase tracking-[0.2em] shadow-2xl shadow-blue-500/20 transition-all active:scale-[0.98] flex items-center justify-center gap-3 mt-4"
+                            className={`btn btn-primary w-full h-18 rounded-2xl text-xs font-black uppercase tracking-[0.3em] shadow-lg shadow-primary/20 transition-all duration-300 mt-4 ${loading ? 'loading' : ''}`}
                         >
-                            {loading ? 'Initializing Core...' : 'Initialize Identity'}
-                            <ArrowRight size={20} className="mt-0.5" />
+                            {loading ? 'PROVISIONING...' : 'INITIALIZE_IDENTITY'}
+                            {!loading && <ArrowRight size={20} className="ml-2" />}
                         </button>
                     </form>
 
-                    <div className="mt-12 pt-8 border-t border-slate-100/50 text-center">
-                        <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                            Already Provisioned? <Link to="/login" className="text-blue-600 hover:text-blue-700 font-extrabold underline underline-offset-4 tracking-[0.05em]">Secure Login</Link>
+                    <div className="mt-12 pt-8 border-t border-white border-opacity-5 text-center">
+                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+                            Already Authorized? <Link to="/login" className="text-primary hover:text-white transition-colors font-black underline underline-offset-8 tracking-widest">SECURE_LOGIN</Link>
                         </p>
                     </div>
                 </div>
             </div>
+
+            {/* Background Decoration */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary opacity-[0.03] rounded-full blur-[120px] pointer-events-none" />
         </div>
     );
 };
