@@ -1,6 +1,6 @@
-# trading-n8n — Trading Automation Bot
+# NEBU-TRADER — Advanced Trading Automation Terminal
 
-A modular trading automation project with a Flask backend and a Vite/React frontend. The backend includes JWT authentication, workflow orchestration, trade management, portfolio analytics, and optional realtime SocketIO updates. The frontend UI for monitoring and interacting with the system is in `Frontend/trading-dashboard`.
+NEBU-TRADER is a modular trading automation orchestration platform designed with a high-fidelity "Business-Elite" aesthetic. It integrates a Flask-based backend architecture with a modern Vite/React frontend, providing professional-grade tools for market analysis, workflow automation, and portfolio management.
 
 ---
 
