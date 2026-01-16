@@ -1,7 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { tradeService } from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, BarChart3, Clock, ArrowRightLeft, ShieldCheck, Activity, Target, Zap, ChevronRight, ListFilter } from 'lucide-react';
+import {
+    Plus,
+    BarChart3,
+    Clock,
+    ArrowRightLeft,
+    ShieldCheck,
+    Activity,
+    Target,
+    Zap,
+    ChevronRight,
+    ListFilter,
+    ArrowUpRight,
+    Send,
+    Lock
+} from 'lucide-react';
 
 const Trading = () => {
     const [trades, setTrades] = useState([]);
@@ -35,103 +49,104 @@ const Trading = () => {
             fetchTrades();
             setFormData({ ...formData, symbol: '', quantity: '', price: '' });
         } catch (err) {
-            alert("Execution Error: Order rejected by gateway.");
+            console.error("Execution error", err);
         } finally {
             setExecuting(false);
         }
     };
 
     return (
-        <div className="animate-biz max-w-[1600px] mx-auto space-y-8 pb-10">
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000 pb-10">
+            {/* Terminal Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white border-opacity-5 pb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900">Execution Terminal</h1>
-                    <p className="text-slate-500 font-medium mt-1">High-fidelity direct market access and order management.</p>
+                    <h2 className="text-4xl font-black text-white tracking-tight elite-gradient-text">EXECUTION_TERMINAL</h2>
+                    <p className="text-slate-500 font-bold text-sm mt-2 flex items-center gap-2">
+                        <Activity size={16} className="text-primary" />
+                        DIRECT_MARKET_ACCESS: <span className="text-success">ACTIVE</span> // NODE: <span className="text-info">LOCAL-SYNC</span>
+                    </p>
                 </div>
-                <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-                    <button className="px-5 py-2 text-xs font-bold bg-white text-blue-600 rounded-lg shadow-sm">Standard Order</button>
-                    <button className="px-5 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 rounded-lg transition-all">Algorithmic</button>
+                <div className="tabs tabs-boxed bg-neutral bg-opacity-30 border border-white border-opacity-5 p-1 rounded-xl">
+                    <a className="tab tab-active bg-primary bg-opacity-10 text-primary font-bold text-xs">STANDARD_EXCHANGE</a>
+                    <a className="tab text-slate-500 font-bold text-xs hover:text-slate-300">ALGORITHMIC_GATEWAY</a>
                 </div>
-            </header>
+            </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-                {/* Terminal Order Panel */}
+                {/* Order Entry Node */}
                 <div className="xl:col-span-4 space-y-6">
-                    <div className="biz-card">
-                        <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-50">
-                            <h2 className="text-sm font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                                <Target size={18} className="text-blue-500" />
-                                Market Dispatch
-                            </h2>
-                            <div className="flex items-center gap-1.5">
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
-                                <span className="text-[10px] font-black text-emerald-600 uppercase tracking-tighter">Connected</span>
-                            </div>
+                    <div className="glass-card p-8 group">
+                        <div className="flex items-center justify-between mb-8 pb-4 border-b border-white border-opacity-5">
+                            <h3 className="text-sm font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                                <Target size={18} className="text-primary group-hover:animate-pulse" />
+                                DISPATCH_CENTER
+                            </h3>
+                            <div className="badge badge-success badge-outline badge-xs font-black p-2">LIVE</div>
                         </div>
 
                         <form className="space-y-6" onSubmit={handleCreateTrade}>
-                            <div className="grid grid-cols-2 gap-1 p-1 bg-slate-50 rounded-xl border border-slate-200/60">
+                            <div className="grid grid-cols-2 gap-2 p-1 bg-neutral bg-opacity-30 rounded-2xl border border-white border-opacity-5">
                                 <button
                                     type="button"
                                     onClick={() => setFormData({ ...formData, side: 'buy' })}
-                                    className={`py-2.5 rounded-lg text-xs font-bold px-4 transition-all ${formData.side === 'buy' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/10' : 'text-slate-500 hover:text-slate-700'}`}
+                                    className={`py-3 rounded-xl text-xs font-black transition-all ${formData.side === 'buy' ? 'bg-success text-success-content shadow-lg shadow-success/20' : 'text-slate-500 hover:text-slate-300'}`}
                                 >
-                                    BUY ASSET
+                                    BUY_LONG
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setFormData({ ...formData, side: 'sell' })}
-                                    className={`py-2.5 rounded-lg text-xs font-bold px-4 transition-all ${formData.side === 'sell' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/10' : 'text-slate-500 hover:text-slate-700'}`}
+                                    className={`py-3 rounded-xl text-xs font-black transition-all ${formData.side === 'sell' ? 'bg-error text-error-content shadow-lg shadow-error/20' : 'text-slate-500 hover:text-slate-300'}`}
                                 >
-                                    SELL ASSET
+                                    SELL_SHORT
                                 </button>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest pl-1">Instrument Symbol</label>
+                            <div className="form-control w-full space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Instrument_Ticker</label>
                                 <input
                                     type="text"
                                     value={formData.symbol}
                                     onChange={(e) => setFormData({ ...formData, symbol: e.target.value.toUpperCase() })}
-                                    className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-slate-900 outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500/50 font-bold text-sm tracking-tight transition-all"
+                                    className="input input-bordered w-full bg-neutral bg-opacity-30 border-white border-opacity-5 focus:border-primary focus:ring-4 focus:ring-primary/5 font-black text-white rounded-xl placeholder:text-slate-700 h-14"
                                     placeholder="e.g. BTCUSDT"
                                     required
                                 />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest pl-1">Order Size</label>
+                                <div className="form-control w-full space-y-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Size_Allocation</label>
                                     <input
                                         type="number"
                                         value={formData.quantity}
                                         onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                                        className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-slate-900 outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500/50 font-bold text-sm transition-all"
+                                        className="input input-bordered w-full bg-neutral bg-opacity-30 border-white border-opacity-5 focus:border-primary font-black text-white rounded-xl h-14"
                                         placeholder="0.00"
                                         required
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest pl-1">Execution Mode</label>
+                                <div className="form-control w-full space-y-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Order_Protocol</label>
                                     <select
                                         value={formData.type}
                                         onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                                        className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-slate-900 outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500/50 font-bold text-xs uppercase transition-all"
+                                        className="select select-bordered w-full bg-neutral bg-opacity-40 border-white border-opacity-5 focus:border-primary font-black text-white rounded-xl h-14"
                                     >
-                                        <option value="market">Market Price</option>
-                                        <option value="limit">Limit Order</option>
+                                        <option value="market">MARKET_IOC</option>
+                                        <option value="limit">LIMIT_GTC</option>
                                     </select>
                                 </div>
                             </div>
 
                             {formData.type === 'limit' && (
-                                <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
-                                    <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest pl-1">Target Limit Price</label>
+                                <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="form-control w-full space-y-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Target_Execution_Price</label>
                                     <input
                                         type="number"
                                         value={formData.price}
                                         onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                        className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl text-slate-900 outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500/50 font-bold text-sm transition-all"
+                                        className="input input-bordered w-full bg-neutral bg-opacity-30 border-white border-opacity-5 focus:border-primary font-black text-white rounded-xl h-14"
                                         placeholder="0.00"
                                     />
                                 </motion.div>
@@ -140,86 +155,95 @@ const Trading = () => {
                             <button
                                 type="submit"
                                 disabled={executing}
-                                className={`w-full h-14 rounded-xl text-sm font-bold uppercase tracking-widest transition-all shadow-xl ${formData.side === 'buy' ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-500/10' : 'bg-rose-600 text-white hover:bg-rose-700 shadow-rose-500/10'
-                                    } ${executing && 'opacity-70 pointer-events-none'}`}
+                                className={`btn btn-primary w-full h-16 rounded-2xl text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-primary/20 ${executing ? 'loading' : ''}`}
                             >
-                                {executing ? 'Processing Order...' : `Place ${formData.side.toUpperCase()} Order`}
+                                {executing ? 'STAGING_ORDER...' : `EXECUTE_${formData.side.toUpperCase()}_DISPATCH`}
+                                {!executing && <Send size={16} className="ml-2" />}
                             </button>
                         </form>
                     </div>
 
-                    <div className="biz-card border-dashed bg-slate-50/50 flex items-start gap-4">
-                        <div className="p-2 bg-blue-500/10 rounded-lg">
-                            <ShieldCheck size={18} className="text-blue-600" />
+                    <div className="glass-card p-6 bg-primary bg-opacity-5 border-primary border-opacity-20 flex items-start gap-4">
+                        <div className="p-3 bg-primary bg-opacity-10 rounded-xl text-primary border border-primary border-opacity-20">
+                            <Lock size={20} />
                         </div>
                         <div>
-                            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Risk Governance</p>
-                            <p className="text-xs text-slate-500 font-medium leading-relaxed">System-wide slippage protection is active (0.5%). All orders are mapped to individual sub-accounts with full transparency.</p>
+                            <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">RISK_PROTOCOL_ACTIVE</p>
+                            <p className="text-xs text-slate-400 font-medium leading-relaxed">
+                                System slippage cap: <span className="text-white font-bold">0.5%</span>.
+                                Automated stop-loss logic is standby for all manual executions.
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                {/* Transaction History Workspace */}
+                {/* Secure Log Workspace */}
                 <div className="xl:col-span-8">
-                    <div className="biz-card min-h-[600px] flex flex-col p-0 overflow-hidden">
-                        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <Activity size={20} className="text-blue-600" />
-                                <h2 className="text-lg font-bold">Transaction History</h2>
-                            </div>
+                    <div className="glass-card min-h-[700px] flex flex-col overflow-hidden">
+                        <div className="p-8 border-b border-white border-opacity-5 flex items-center justify-between bg-white bg-opacity-[0.02]">
                             <div className="flex items-center gap-4">
-                                <div className="flex bg-slate-50 border border-slate-200 p-1 rounded-lg">
-                                    <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors"><ListFilter size={16} /></button>
-                                    <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors"><Zap size={16} /></button>
+                                <div className="w-12 h-12 rounded-2xl bg-primary bg-opacity-10 flex items-center justify-center border border-primary border-opacity-10">
+                                    <Activity size={24} className="text-primary" />
                                 </div>
+                                <div>
+                                    <h3 className="text-xl font-black text-white tracking-tight">TRANSACTION_STREAM</h3>
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1">Live ledger interaction</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-2">
+                                <button className="btn btn-ghost btn-square btn-sm text-slate-500 hover:text-primary transition-colors">
+                                    <ListFilter size={18} />
+                                </button>
+                                <button className="btn btn-ghost btn-square btn-sm text-slate-500 hover:text-warning transition-colors">
+                                    <Zap size={18} />
+                                </button>
                             </div>
                         </div>
 
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
+                        <div className="overflow-x-auto flex-1">
+                            <table className="table table-zebra bg-transparent">
                                 <thead>
-                                    <tr className="text-left text-[11px] font-bold uppercase tracking-widest text-slate-400 border-b border-slate-50">
-                                        <th className="px-8 py-5">Instrument</th>
-                                        <th className="px-8 py-5">Side</th>
-                                        <th className="px-8 py-5">Mode</th>
-                                        <th className="px-8 py-5 text-right">Quantity</th>
-                                        <th className="px-8 py-5 text-right">Execution Price</th>
-                                        <th className="px-8 py-5 text-center">Status</th>
+                                    <tr className="border-white border-opacity-5 text-slate-500 uppercase text-[10px] tracking-widest">
+                                        <th className="pl-10 py-6">Instrument_ID</th>
+                                        <th>Direction</th>
+                                        <th>Protocol</th>
+                                        <th className="text-right">Quantity</th>
+                                        <th className="text-right">Execution_Value</th>
+                                        <th className="pr-10 text-center">Finalized_Status</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-50">
+                                <tbody>
                                     {trades.map((trade, i) => (
-                                        <tr key={i} className="list-item-row group hover:bg-slate-50/80 transition-all">
-                                            <td className="px-8 py-5">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center font-bold text-[10px] text-slate-500">
+                                        <tr key={i} className="hover:bg-white hover:bg-opacity-5 border-white border-opacity-5 transition-colors group">
+                                            <td className="pl-10 py-5">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-9 h-9 rounded-xl bg-neutral bg-opacity-40 flex items-center justify-center font-bold text-xs text-slate-400 border border-white border-opacity-5">
                                                         {trade.symbol.substring(0, 2)}
                                                     </div>
-                                                    <span className="font-bold text-slate-900">{trade.symbol}</span>
+                                                    <span className="font-black text-white text-sm tracking-wider">{trade.symbol}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-5">
-                                                <span className={`pill text-[10px] ${trade.side === 'buy' ? 'pill-up' : 'pill-down'}`}>
-                                                    {trade.side}
-                                                </span>
+                                            <td>
+                                                <div className={`badge ${trade.side === 'buy' ? 'badge-success' : 'badge-error'} badge-outline badge-xs font-black p-2 tracking-widest`}>
+                                                    {trade.side.toUpperCase()}
+                                                </div>
                                             </td>
-                                            <td className="px-8 py-5 font-bold text-[11px] text-slate-500 uppercase">{trade.trade_type}</td>
-                                            <td className="px-8 py-5 text-right font-bold text-slate-900">{trade.quantity}</td>
-                                            <td className="px-8 py-5 text-right font-bold text-slate-900">${(trade.executed_price || trade.price || 0).toLocaleString()}</td>
-                                            <td className="px-8 py-5 text-center">
-                                                <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter ${trade.status === 'filled' ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-slate-50 text-slate-400 border border-slate-100'
-                                                    }`}>
-                                                    {trade.status}
-                                                </span>
+                                            <td className="font-black text-[10px] text-slate-500 tracking-tighter uppercase">{trade.trade_type}</td>
+                                            <td className="text-right font-black text-slate-300 text-sm">{trade.quantity}</td>
+                                            <td className="text-right font-black text-white text-sm">${(trade.executed_price || trade.price || 0).toLocaleString()}</td>
+                                            <td className="pr-10 text-center">
+                                                <div className={`badge ${trade.status === 'filled' ? 'badge-primary' : 'badge-ghost'} bg-opacity-10 border-opacity-20 font-black text-[10px] py-3 px-4 tracking-widest`}>
+                                                    {trade.status.toUpperCase()}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
                                     {trades.length === 0 && (
                                         <tr>
-                                            <td colSpan="6" className="py-32 text-center">
-                                                <div className="flex flex-col items-center gap-4 opacity-30">
-                                                    <ArrowRightLeft size={48} strokeWidth={1} text-slate-400 />
-                                                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">No Historical Records Found</p>
+                                            <td colSpan="6" className="py-48 text-center opacity-20">
+                                                <div className="flex flex-col items-center gap-6">
+                                                    <ArrowRightLeft size={64} strokeWidth={0.5} />
+                                                    <p className="text-[11px] font-black uppercase tracking-[0.4em]">Zero_Chain_Interaction_Detected</p>
                                                 </div>
                                             </td>
                                         </tr>
@@ -228,9 +252,14 @@ const Trading = () => {
                             </table>
                         </div>
 
-                        <div className="mt-auto p-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-                            <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">End of Stream — Real-time Connection Persistent</p>
-                            <button className="text-blue-600 font-bold text-xs flex items-center gap-1 hover:underline">Download Audit Log <ChevronRight size={14} /></button>
+                        <div className="p-8 bg-white bg-opacity-[0.01] border-t border-white border-opacity-5 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">PERSISTENT_LEDGER_SYNC_OPTIMAL</p>
+                            </div>
+                            <button className="btn btn-link btn-xs text-primary font-black uppercase tracking-widest hover:no-underline flex items-center gap-2 p-0">
+                                EXPORT_AUDIT_REPORT <ChevronRight size={14} />
+                            </button>
                         </div>
                     </div>
                 </div>
