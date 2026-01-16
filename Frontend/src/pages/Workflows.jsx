@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { workflowService } from '../services/api';
-import { Play, Plus, Cpu, ShieldCheck, Activity, Terminal, ExternalLink, Settings2, MoreVertical, Database } from 'lucide-react';
+import {
+    Play,
+    Plus,
+    Cpu,
+    ShieldCheck,
+    Activity,
+    Terminal,
+    ExternalLink,
+    Settings2,
+    MoreVertical,
+    Database,
+    Power,
+    Zap,
+    RefreshCw
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Workflows = () => {
@@ -27,101 +41,113 @@ const Workflows = () => {
             await workflowService.toggleWorkflow(id);
             fetchWorkflows();
         } catch (err) {
-            alert("Operational Fault: Protocol Change Denied");
+            console.error("Protocol shutdown failed", err);
         }
     };
 
     const executeWorkflow = async (id) => {
         try {
             await workflowService.executeWorkflow(id);
-            alert("Tactical override successful.");
         } catch (err) {
-            alert("Execution Error: Core Node Unresponsive");
+            console.error("Execution failure", err);
         }
     };
 
-    return (
-        <div className="animate-biz max-w-[1600px] mx-auto space-y-8 pb-10">
-            <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div>
-                    <div className="flex items-center gap-2 mb-2">
-                        <Cpu className="text-blue-600" size={16} />
-                        <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400">Tactical Automation Controller</span>
-                    </div>
-                    <h1 className="text-3xl font-bold text-slate-900 font-heading">Strategy Orchestration</h1>
-                    <p className="text-slate-500 font-medium mt-1">Manage and monitor high-frequency autonomous trading protocols.</p>
-                </div>
-                <button className="btn-biz btn-biz-primary px-8 h-12 shadow-blue-500/10">
-                    <Plus size={18} />
-                    Create Protocol
-                </button>
-            </header>
+    if (loading) return (
+        <div className="flex items-center justify-center h-[60vh]">
+            <span className="loading loading-infinity loading-lg text-primary"></span>
+        </div>
+    );
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    return (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000 pb-10">
+            {/* Automation Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white border-opacity-5 pb-8">
+                <div>
+                    <h2 className="text-4xl font-black text-white tracking-tight elite-gradient-text">STRATEGY_ORCHESTRATOR</h2>
+                    <p className="text-slate-500 font-bold text-sm mt-2 flex items-center gap-2">
+                        <Cpu size={16} className="text-primary" />
+                        ACTIVE_INSTANCES: <span className="text-success">{workflows.filter(w => w.is_active).length}</span> // ENGINE: <span className="text-info">N-8-N_CORE</span>
+                    </p>
+                </div>
+                <button className="btn btn-primary px-10 rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-lg shadow-primary/20 h-14">
+                    <Plus size={18} className="mr-2" />
+                    REGISTER_NEW_PROTOCOL
+                </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                 {workflows.map((wf) => (
-                    <div key={wf.id} className="biz-card flex flex-col group p-0 overflow-hidden">
-                        <div className="p-6 pb-0 flex justify-between items-start mb-6">
-                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all bg-opacity-10 ${wf.is_active ? 'bg-emerald-500 text-emerald-600' : 'bg-slate-200 text-slate-400'
+                    <div key={wf.id} className="glass-card flex flex-col group overflow-hidden border-opacity-10 hover:border-opacity-30 transition-all duration-500">
+                        <div className="p-8 pb-4 flex justify-between items-start">
+                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 border ${wf.is_active
+                                    ? 'bg-success bg-opacity-10 text-success border-success border-opacity-20 shadow-[0_0_20px_rgba(48,209,88,0.1)]'
+                                    : 'bg-neutral bg-opacity-40 text-slate-600 border-white border-opacity-5'
                                 }`}>
-                                <Activity size={28} />
+                                <Activity size={32} className={wf.is_active ? 'animate-pulse' : ''} />
                             </div>
-                            <div className="flex items-center gap-2">
-                                <button className="p-2 text-slate-300 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all"><Settings2 size={18} /></button>
-                                <button className="p-2 text-slate-300 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all"><MoreVertical size={18} /></button>
+                            <div className="flex items-center gap-1">
+                                <button className="btn btn-ghost btn-square btn-sm text-slate-500 hover:text-white transition-colors"><Settings2 size={16} /></button>
+                                <button className="btn btn-ghost btn-square btn-sm text-slate-500 hover:text-white transition-colors"><MoreVertical size={16} /></button>
                             </div>
                         </div>
 
-                        <div className="px-6 flex-1">
-                            <h3 className="text-lg font-bold mb-2 text-slate-900 group-hover:text-blue-600 transition-colors uppercase tracking-tight">{wf.name}</h3>
-                            <p className="text-xs text-slate-500 font-medium mb-6 leading-relaxed">
-                                {wf.description || "Automatic monitoring and autonomous execution strategy using L1 liquidity signals and order-flow imbalances."}
+                        <div className="px-8 flex-1">
+                            <h3 className="text-xl font-black mb-3 text-white tracking-tight group-hover:text-primary transition-colors duration-300 uppercase">
+                                {wf.name}
+                            </h3>
+                            <p className="text-xs text-slate-500 font-bold mb-8 leading-relaxed tracking-wide">
+                                {wf.description || "INSTITUTIONAL_STRATEGY: Monitoring L1 liquidity anomalies and executing autonomous delta-neutral hedging protocols."}
                             </p>
 
-                            <div className="grid grid-cols-2 gap-4 mb-8">
-                                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Last Deploy</p>
-                                    <p className="text-[11px] font-bold text-slate-700">6h 12m ago</p>
+                            <div className="grid grid-cols-2 gap-4 mb-10">
+                                <div className="p-4 bg-neutral bg-opacity-20 rounded-2xl border border-white border-opacity-5">
+                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Last_Execution</p>
+                                    <p className="text-xs font-black text-white">0.42s AGO</p>
                                 </div>
-                                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Latency</p>
-                                    <p className="text-[11px] font-bold text-blue-600">Adaptive (4ms)</p>
+                                <div className="p-4 bg-neutral bg-opacity-20 rounded-2xl border border-white border-opacity-5">
+                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Latency_Avg</p>
+                                    <p className="text-xs font-black text-primary">12.4ms</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="px-6 py-6 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                        <div className="px-8 py-8 bg-white bg-opacity-[0.02] border-t border-white border-opacity-5 flex items-center justify-between">
                             <div className="flex gap-3">
                                 <button
                                     onClick={() => executeWorkflow(wf.id)}
-                                    className="px-4 py-2.5 bg-white text-slate-600 border border-slate-200 rounded-xl hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm font-bold text-xs flex items-center gap-2"
+                                    className="btn btn-sm btn-outline border-white border-opacity-10 text-white hover:bg-white hover:bg-opacity-5 rounded-xl font-bold text-[10px] tracking-widest px-4 h-10"
                                 >
-                                    <Play size={14} fill="currentColor" />
-                                    Manual Burst
+                                    <RefreshCw size={12} className="mr-1" />
+                                    SYNC_FORCE
                                 </button>
                                 <button
                                     onClick={() => toggleWorkflow(wf.id)}
-                                    className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all ${wf.is_active
-                                            ? 'bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-100'
-                                            : 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/10'
+                                    className={`btn btn-sm rounded-xl font-black text-[10px] tracking-[0.15em] px-6 h-10 transition-all duration-300 ${wf.is_active
+                                            ? 'bg-error bg-opacity-10 text-error border-error border-opacity-20 hover:bg-error hover:text-white'
+                                            : 'bg-primary text-white border-none shadow-lg shadow-primary/20'
                                         }`}
                                 >
-                                    {wf.is_active ? 'Shut Down' : 'Establish'}
+                                    {wf.is_active ? 'SHUTDOWN' : 'ESTABLISH'}
                                 </button>
                             </div>
-                            <div className={`flex items-center gap-2 text-[10px] font-black tracking-widest ${wf.is_active ? 'text-emerald-600' : 'text-slate-300'}`}>
-                                <div className={`w-1.5 h-1.5 rounded-full ${wf.is_active ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300'}`} />
-                                {wf.is_active ? 'ONLINE' : 'IDLE'}
+                            <div className={`flex items-center gap-2 text-[9px] font-black tracking-[0.2em] px-3 py-1.5 rounded-full border ${wf.is_active
+                                    ? 'text-success border-success border-opacity-20 bg-success bg-opacity-5'
+                                    : 'text-slate-500 border-white border-opacity-5 bg-neutral bg-opacity-20'
+                                }`}>
+                                <div className={`w-1.5 h-1.5 rounded-full ${wf.is_active ? 'bg-success animate-ping' : 'bg-slate-700'}`} />
+                                {wf.is_active ? 'ONLINE' : 'STBY'}
                             </div>
                         </div>
                     </div>
                 ))}
 
-                {!loading && workflows.length === 0 && (
-                    <div className="col-span-full py-40 biz-card border-dashed bg-transparent shadow-none flex flex-col items-center justify-center text-slate-300">
-                        <Database size={48} strokeWidth={1} className="mb-6 opacity-40" />
-                        <p className="text-sm font-bold uppercase tracking-[0.2em]">No Automation Protocols Identified</p>
-                        <button className="mt-8 px-6 py-3 bg-white border border-slate-200 text-slate-500 font-bold text-xs rounded-xl hover:bg-slate-50 transition-all flex items-center gap-2">
-                            Access n8n Cloud <ExternalLink size={14} />
+                {workflows.length === 0 && (
+                    <div className="col-span-full py-48 glass-card border-dashed border-opacity-20 flex flex-col items-center justify-center text-slate-500">
+                        <Database size={64} strokeWidth={0.5} className="mb-8 opacity-20" />
+                        <p className="text-xs font-black uppercase tracking-[0.4em]">NO_INSTANTIATED_PROTOCOLS_FOUND</p>
+                        <button className="mt-10 btn btn-outline border-white border-opacity-10 text-slate-400 hover:text-white rounded-2xl px-10 font-bold text-xs flex items-center gap-2">
+                            ACCESS_REMOTE_CLOUD <ExternalLink size={16} />
                         </button>
                     </div>
                 )}
